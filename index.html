@@ -1,28 +1,33 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>車證查詢系統</title>
 
 <style>
 
 body{
-    font-family: Microsoft JhengHei;
-    background:#f5f7fb;
+    margin:0;
     padding:40px;
+    font-family:"Microsoft JhengHei";
+    background:#f3f6fb;
 }
 
 .container{
-    max-width:700px;
+    max-width:800px;
     margin:auto;
     background:white;
     padding:30px;
-    border-radius:15px;
-    box-shadow:0 0 15px rgba(0,0,0,0.1);
+    border-radius:20px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.1);
 }
 
 h1{
     text-align:center;
+    margin-bottom:30px;
     color:#333;
 }
 
@@ -34,19 +39,21 @@ h1{
 
 input{
     flex:1;
-    padding:12px;
-    font-size:18px;
+    padding:15px;
     border:1px solid #ccc;
-    border-radius:10px;
+    border-radius:12px;
+    font-size:18px;
 }
 
 button{
-    padding:12px 20px;
+    padding:15px 25px;
+    border:none;
+    border-radius:12px;
     background:#4a90e2;
     color:white;
-    border:none;
-    border-radius:10px;
+    font-size:16px;
     cursor:pointer;
+    transition:0.3s;
 }
 
 button:hover{
@@ -54,20 +61,45 @@ button:hover{
 }
 
 .card{
-    background:#f9fafc;
+    background:#f9fbff;
+    border-left:6px solid #4a90e2;
+    border-radius:15px;
     padding:20px;
-    border-radius:12px;
     margin-bottom:20px;
-    border-left:5px solid #4a90e2;
+    animation:fadeIn 0.3s ease;
 }
 
 .row{
-    margin:8px 0;
+    margin:10px 0;
+    font-size:16px;
 }
 
 .label{
     font-weight:bold;
     color:#555;
+}
+
+.no-data{
+    text-align:center;
+    color:#999;
+    padding:20px;
+}
+
+.loading{
+    text-align:center;
+    color:#666;
+    padding:20px;
+}
+
+@keyframes fadeIn{
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
 }
 
 </style>
@@ -77,76 +109,169 @@ button:hover{
 
 <div class="container">
 
-<h1>車證查詢系統</h1>
+    <h1>🚗 車證查詢系統</h1>
 
-<div class="search-box">
-    <input type="text" id="keyword" placeholder="輸入學號或車號">
-    <button onclick="searchData()">查詢</button>
-</div>
+    <div class="search-box">
 
-<div id="result"></div>
+        <input
+            type="text"
+            id="keyword"
+            placeholder="請輸入學號或車號"
+        >
+
+        <button onclick="searchData()">
+            查詢
+        </button>
+
+    </div>
+
+    <div id="result"></div>
 
 </div>
 
 <script>
 
+// ==============================
+// Apps Script API網址
+// ==============================
+
 const API_URL = "https://script.google.com/macros/s/AKfycbyiWfRMU1D-oJ0729_3rC0wkRVsbpc_6AMEeBnYbfFJpLB_zl5Hmnjq2pMr5I0CwcLFcw/exec";
+
+// ==============================
+// 查詢功能
+// ==============================
 
 async function searchData(){
 
-    const keyword = document.getElementById("keyword").value.trim();
-
-    if(!keyword){
-        alert("請輸入學號或車號");
-        return;
-    }
-
-    const response = await fetch(`${API_URL}?keyword=${keyword}`);
-
-    const data = await response.json();
+    const keyword = document
+        .getElementById("keyword")
+        .value
+        .trim();
 
     const resultDiv = document.getElementById("result");
 
-    resultDiv.innerHTML = "";
+    // 沒輸入
+    if(!keyword){
 
-    if(data.length === 0){
-        resultDiv.innerHTML = "<p>查無資料</p>";
+        resultDiv.innerHTML = `
+            <div class="no-data">
+                請輸入學號或車號
+            </div>
+        `;
+
         return;
     }
 
-    data.forEach(item => {
-
-        resultDiv.innerHTML += `
-        <div class="card">
-
-            <div class="row"><span class="label">姓名：</span>${item.姓名}</div>
-
-            <div class="row"><span class="label">學號：</span>${item.學號}</div>
-
-            <div class="row"><span class="label">車號：</span>${item.車號}</div>
-
-            <div class="row"><span class="label">學年：</span>${item.學年}</div>
-
-            <div class="row"><span class="label">學期：</span>${item.學期}</div>
-
-            <div class="row"><span class="label">連絡電話：</span>${item.連絡電話}</div>
-
-            <div class="row"><span class="label">手機：</span>${item.手機}</div>
-
-            <div class="row"><span class="label">在學狀態：</span>${item.在學狀態}</div>
-
-            <div class="row"><span class="label">狀態：</span>${item.狀態}</div>
-
+    // Loading
+    resultDiv.innerHTML = `
+        <div class="loading">
+            查詢中...
         </div>
+    `;
+
+    try{
+
+        const response = await fetch(
+            `${API_URL}?keyword=${encodeURIComponent(keyword)}`
+        );
+
+        const data = await response.json();
+
+        resultDiv.innerHTML = "";
+
+        // 沒資料
+        if(data.length === 0){
+
+            resultDiv.innerHTML = `
+                <div class="no-data">
+                    查無資料
+                </div>
+            `;
+
+            return;
+        }
+
+        // 顯示資料
+        data.forEach(item => {
+
+            resultDiv.innerHTML += `
+
+            <div class="card">
+
+                <div class="row">
+                    <span class="label">姓名：</span>
+                    ${item.姓名 || ""}
+                </div>
+
+                <div class="row">
+                    <span class="label">學號：</span>
+                    ${item.學號 || ""}
+                </div>
+
+                <div class="row">
+                    <span class="label">車號：</span>
+                    ${item.車號 || ""}
+                </div>
+
+                <div class="row">
+                    <span class="label">學年：</span>
+                    ${item.學年 || ""}
+                </div>
+
+                <div class="row">
+                    <span class="label">學期：</span>
+                    ${item.學期 || ""}
+                </div>
+
+                <div class="row">
+                    <span class="label">連絡電話：</span>
+                    ${item.連絡電話 || ""}
+                </div>
+
+                <div class="row">
+                    <span class="label">手機：</span>
+                    ${item.手機 || ""}
+                </div>
+
+                <div class="row">
+                    <span class="label">在學狀態：</span>
+                    ${item.在學狀態 || ""}
+                </div>
+
+                <div class="row">
+                    <span class="label">狀態：</span>
+                    ${item.狀態 || ""}
+                </div>
+
+            </div>
+
+            `;
+        });
+
+    }catch(error){
+
+        console.error(error);
+
+        resultDiv.innerHTML = `
+            <div class="no-data">
+                查詢失敗，請確認API是否正常
+            </div>
         `;
-    });
+    }
 }
 
-document.getElementById("keyword")
-.addEventListener("keypress",function(e){
-    if(e.key==="Enter"){
+// ==============================
+// Enter查詢
+// ==============================
+
+document
+.getElementById("keyword")
+.addEventListener("keypress", function(e){
+
+    if(e.key === "Enter"){
         searchData();
     }
+
 });
 
 </script>
