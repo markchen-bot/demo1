@@ -1,210 +1,134 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>車證查詢系統</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Microsoft JhengHei", "Noto Sans TC", Arial, sans-serif;
-      background: linear-gradient(135deg, #eef7ff 0%, #fff7ed 100%);
-      color: #1f2937;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 36px 16px;
-    }
-    .wrap { width: min(920px, 100%); }
-    .card {
-      background: rgba(255,255,255,.92);
-      border: 1px solid rgba(148,163,184,.35);
-      border-radius: 22px;
-      box-shadow: 0 18px 45px rgba(15,23,42,.12);
-      overflow: hidden;
-    }
-    .hero {
-      padding: 28px 30px 20px;
-      background: linear-gradient(135deg, #2563eb, #0f766e);
-      color: white;
-    }
-    .hero h1 { margin: 0 0 8px; font-size: 30px; letter-spacing: .04em; }
-    .hero p { margin: 0; opacity: .92; line-height: 1.7; }
-    .content { padding: 26px 30px 30px; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 14px; align-items: end; }
-    label { display: block; font-weight: 700; margin-bottom: 8px; color: #334155; }
-    input {
-      width: 100%; padding: 13px 14px; border: 1px solid #cbd5e1; border-radius: 14px;
-      font-size: 16px; outline: none; background: white;
-    }
-    input:focus { border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37,99,235,.12); }
-    button {
-      border: 0; border-radius: 14px; padding: 14px 22px; font-size: 16px; font-weight: 800;
-      color: white; background: #2563eb; cursor: pointer; min-width: 110px;
-      box-shadow: 0 8px 20px rgba(37,99,235,.24);
-    }
-    button:hover { filter: brightness(.95); transform: translateY(-1px); }
-    .hint { margin-top: 14px; color: #64748b; font-size: 14px; line-height: 1.6; }
-    .result { margin-top: 24px; }
-    .msg { padding: 14px 16px; border-radius: 14px; line-height: 1.6; }
-    .msg.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-    .msg.info { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
-    .status-card {
-      border: 1px solid #bae6fd; background: #f0f9ff; border-radius: 18px; padding: 18px;
-      display: grid; gap: 10px;
-    }
-    .status-pill {
-      display: inline-flex; align-items: center; justify-content: center;
-      padding: 8px 14px; border-radius: 999px; font-weight: 900;
-      background: #dcfce7; color: #166534; width: fit-content;
-    }
-    table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 16px; background: white; }
-    th, td { padding: 12px 14px; border-bottom: 1px solid #e2e8f0; text-align: left; vertical-align: top; }
-    th { width: 160px; background: #f8fafc; color: #475569; font-weight: 800; }
-    tr:last-child th, tr:last-child td { border-bottom: 0; }
-    .footer-note { margin-top: 18px; font-size: 13px; color: #94a3b8; }
-    @media (max-width: 760px) {
-      .hero, .content { padding-left: 18px; padding-right: 18px; }
-      .form-grid { grid-template-columns: 1fr; }
-      button { width: 100%; }
-      th { width: 110px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>車證查詢系統</title>
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f4f4;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+.box{
+    background:white;
+    padding:30px;
+    border-radius:15px;
+    width:350px;
+    box-shadow:0 0 15px rgba(0,0,0,0.1);
+}
+input,button{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    box-sizing:border-box;
+}
+button{
+    background:#4a90e2;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+button:hover{
+    background:#357bd8;
+}
+.result{
+    margin-top:20px;
+    background:#f8f8f8;
+    padding:15px;
+    border-radius:10px;
+    white-space:pre-wrap;
+}
+</style>
 </head>
 <body>
-  <main class="wrap">
-    <section class="card">
-      <div class="hero">
-        <h1>車證查詢系統</h1>
-      </div>
-      <div class="content">
-        <div class="form-grid">
-          <div>
-            <label for="password">查詢密碼</label>
-            <input id="password" type="password" placeholder="" autocomplete="off" />
-          </div>
-          <div>
-            <label for="keyword">車號或學號</label>
-            <input id="keyword" type="text" placeholder="" autocomplete="off" />
-          </div>
-          <button onclick="searchData()">查詢</button>
-        </div>
-        <div class="hint">
-        <div class="footer-note">提醒：此版本為單機 HTML 查詢頁，適合內部快速查詢；若要真正防止資料被看到，建議改成 Google Apps Script / 後端版本。</div>
-      </div>
-    </section>
-  </main>
 
-  <script>
-    const DATA = [
-  {
-    "學年": "114",
-    "學期": "2",
-    "車號": "MXK7780",
-    "學號": "D1094171010",
-    "姓名": "周昀政",
-    "連絡電話": "960750970",
-    "手機": "960750970",
-    "在學狀態": "延",
-    "狀態": "可用"
-  },
-  {
-    "學年": "114",
-    "學期": "2",
-    "車號": "PBH6237",
-    "學號": "D1104114707",
-    "姓名": "呂文凱",
-    "連絡電話": "03-4602796",
-    "手機": "0988-479-248",
-    "在學狀態": "延",
-    "狀態": "可用"
-  },
-  {
-    "學年": "114",
-    "學期": "2",
-    "車號": "NFN2697",
-    "學號": "D1104114715",
-    "姓名": "陳元翰",
-    "連絡電話": "02-22090091",
-    "手機": "929788203",
-    "在學狀態": "延",
-    "狀態": "可用"
-  },
-  {
-    "學年": "114",
-    "學期": "2",
-    "車號": "NFN3126",
-    "學號": "D1104172715",
-    "姓名": "張育睿",
-    "連絡電話": "(02)29863643",
-    "手機": "0972-789-195",
-    "在學狀態": "延",
-    "狀態": "可用"
-  }
-];
-    const HEADERS = ["學年", "學期", "車號", "學號", "姓名", "連絡電話", "手機", "在學狀態", "狀態"];
+<div class="box">
+    <h2>車證查詢</h2>
 
-    function normalize(value) {
-      return String(value ?? '')
-        .trim()
-        .toUpperCase()
-        .replace(/[\s\-]/g, '');
+    <input type="password" id="pwd">
+    <input type="text" id="keyword">
+
+    <button onclick="searchData()">查詢</button>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+
+// Google Apps Script Web App URL
+const apiUrl = "https://script.google.com/macros/s/AKfycbx8Ta-ZtQKjf4WqU9p4C5LzFrjp-8EBcWurYVq_J7Gtqnw2CEqCYFi2XzOc_PZwiUrCxg/exec";
+
+async function searchData(){
+
+    const pwd = document.getElementById("pwd").value.trim();
+    const keyword = document.getElementById("keyword").value.trim().toLowerCase();
+
+    const resultDiv = document.getElementById("result");
+
+    if(pwd !== "000" && pwd !== "999"){
+        resultDiv.innerText = "密碼錯誤";
+        return;
     }
 
-    function esc(value) {
-      return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+    try{
+
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        const found = data.filter(item => {
+
+            const car = (item.車號 || "").toLowerCase();
+            const sid = (item.學號 || "").toLowerCase();
+
+            return car.includes(keyword) || sid.includes(keyword);
+
+        });
+
+        if(found.length === 0){
+            resultDiv.innerText = "查無資料";
+            return;
+        }
+
+        let html = "";
+
+        found.forEach(item => {
+
+            if(pwd === "000"){
+
+                html += `
+車號：${item.車號 || ""}
+學號：${item.學號 || ""}
+狀態：${item.狀態 || ""}
+------------------------
+`;
+
+            }else{
+
+                for(let key in item){
+                    html += `${key}：${item[key]}\n`;
+                }
+
+                html += "------------------------\n";
+            }
+
+        });
+
+        resultDiv.innerText = html;
+
+    }catch(e){
+
+        resultDiv.innerText = "資料讀取失敗";
+
     }
 
-    function findRecord(keyword) {
-      const key = normalize(keyword);
-      return DATA.find(row => normalize(row['車號']) === key || normalize(row['學號']) === key);
-    }
+}
+</script>
 
-    function searchData() {
-      const password = document.getElementById('password').value.trim();
-      const keyword = document.getElementById('keyword').value.trim();
-      const result = document.getElementById('result');
-
-      if (!password || !keyword) {
-        return;
-      }
-
-      if (password !== '000' && password !== '999') {
-        return;
-      }
-
-      const record = findRecord(keyword);
-      if (!record) {
-        result.innerHTML = '<div class="msg error">查無資料，請確認車號或學號是否輸入正確。</div>';
-        return;
-      }
-
-      if (password === '000') {
-        result.innerHTML = `
-          <div class="status-card">
-            <div><b>查詢條件：</b>${esc(keyword).toUpperCase()}</div>
-            <div><b>狀態：</b><span class="status-pill">${esc(record['狀態'] || '未填寫')}</span></div>
-          </div>`;
-        return;
-      }
-
-      const rows = HEADERS.map(h => `<tr><th>${esc(h)}</th><td>${esc(record[h])}</td></tr>`).join('');
-      result.innerHTML = `<table>${rows}</table>`;
-    }
-
-    document.getElementById('keyword').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') searchData();
-    });
-    document.getElementById('password').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') searchData();
-    });
-  </script>
 </body>
 </html>
