@@ -76,7 +76,7 @@ button{
 
 <script>
 
-const API_URL = "https://script.google.com/macros/s/AKfycbyltN6eFlZp5aqr0fktPzNN3zrVClcT6bwcKtlgU4xbARtX5QZ2jYzmkIZLAK1TazSB/execL";
+const API_URL = https://script.google.com/macros/s/AKfycbyltN6eFlZp5aqr0fktPzNN3zrVClcT6bwcKtlgU4xbARtX5QZ2jYzmkIZLAK1TazSB/execL;
 
 async function searchData(){
 
