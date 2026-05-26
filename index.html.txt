@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>車證查詢系統</title>
+
+<style>
+
+body{
+    font-family: Arial;
+    background:#f5f5f5;
+    padding:30px;
+}
+
+.container{
+    max-width:700px;
+    margin:auto;
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    margin-bottom:20px;
+    font-size:16px;
+}
+
+button{
+    padding:12px 20px;
+    font-size:16px;
+    cursor:pointer;
+    background:#007bff;
+    color:white;
+    border:none;
+    border-radius:5px;
+}
+
+.result{
+    margin-top:30px;
+    background:#fafafa;
+    padding:20px;
+    border-radius:5px;
+}
+
+.item{
+    border-bottom:1px solid #ddd;
+    padding:10px 0;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>車證查詢系統</h2>
+
+<label>輸入密碼</label>
+<input type="password" id="password">
+
+<label>輸入車號或學號</label>
+<input type="text" id="keyword" placeholder="可模糊搜尋">
+
+<button onclick="searchData()">查詢</button>
+
+<div class="result" id="result"></div>
+
+</div>
+
+<script>
+
+const API_URL = "https://script.google.com/macros/s/AKfycbyltN6eFlZp5aqr0fktPzNN3zrVClcT6bwcKtlgU4xbARtX5QZ2jYzmkIZLAK1TazSB/execL";
+
+async function searchData(){
+
+    const password = document.getElementById("password").value;
+    const keyword = document.getElementById("keyword").value;
+
+    const resultDiv = document.getElementById("result");
+
+    resultDiv.innerHTML = "查詢中...";
+
+    try{
+
+        const response = await fetch(
+            `${API_URL}?password=${encodeURIComponent(password)}&keyword=${encodeURIComponent(keyword)}`
+        );
+
+        const data = await response.json();
+
+        if(data.length === 0){
+            resultDiv.innerHTML = "查無資料";
+            return;
+        }
+
+        let html = "";
+
+        data.forEach(item => {
+
+            html += `<div class="item">`;
+
+            for(let key in item){
+
+                html += `<p><strong>${key}：</strong>${item[key]}</p>`;
+
+            }
+
+            html += `</div>`;
+
+        });
+
+        resultDiv.innerHTML = html;
+
+    }catch(error){
+
+        resultDiv.innerHTML = "查詢失敗";
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
